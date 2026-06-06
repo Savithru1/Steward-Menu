@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /menu/*/cart
+Disallow: /menu/*/checkout
+Disallow: /menu/*/tracking
+Disallow: /menu/*/my-orders
+
+Sitemap: https://yourdomain.com/sitemap.xml

@@ -1,0 +1,173 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+}
+
+:root {
+  /* ── Steward Menu — Minimal B&W Dark (Notion/macOS-inspired) ── */
+
+  /* Surfaces */
+  --background: #0A0A0A;
+  --foreground: #F5F5F5;
+
+  --surface-raised: #141414;
+  --surface-raised-rgb: 20, 20, 20;
+
+  --on-surface: #F5F5F5;
+  --on-surface-rgb: 245, 245, 245;
+
+  /* ── Surface tokens — recomputed at runtime by ThemeProvider ─────────────
+   * These are deliberately set as rgba() defaults for the base dark theme.
+   * When an admin applies a custom brand colour, ThemeProvider's
+   * recomputeDerivedVars() replaces them with blended solid hex values so
+   * nothing clashes with the new background. DO NOT rely on these being
+   * rgba() — always reference them as CSS var() in components.
+   * ───────────────────────────────────────────────────────────────────────── */
+  --card: rgba(255, 255, 255, 0.04);
+  --card-foreground: #F5F5F5;
+  --popover: #141414;
+  --popover-foreground: #F5F5F5;
+
+  --secondary: #1A1A1A;
+  --secondary-foreground: #F5F5F5;
+
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: rgba(255, 255, 255, 0.45);
+
+  /* Interactive */
+  --primary: #FFFFFF;
+  /* ── --primary-foreground auto-computed from primary luminance ── */
+  --primary-foreground: #0A0A0A;
+
+  --accent: rgba(255, 255, 255, 0.08);
+  --accent-foreground: #F5F5F5;
+
+  /* Lines — also recomputed by ThemeProvider when background changes */
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: rgba(255, 255, 255, 0.25);
+
+  /* Status */
+  --destructive: #EF4444;
+  --radius: 0.75rem;
+
+  /* ── Brand variables — only affect interactive elements, not surfaces ── */
+  --brand-color: #FFFFFF;
+  --brand-accent: rgba(255, 255, 255, 0.12);
+
+  /* ── Status colours (restaurant-appropriate warm palette) ── */
+  /* NEW / Placed — warm amber */
+  --status-new-text:   #D97706;
+  --status-new-bg:     rgba(217, 119, 6, 0.10);
+  --status-new-border: rgba(217, 119, 6, 0.22);
+
+  /* PREPARING — cool blue */
+  --status-prep-text:   #3B82F6;
+  --status-prep-bg:     rgba(59, 130, 246, 0.10);
+  --status-prep-border: rgba(59, 130, 246, 0.22);
+
+  /* READY — warm teal/emerald (readable, not garish) */
+  --status-ready-text:   #10B981;
+  --status-ready-bg:     rgba(16, 185, 129, 0.10);
+  --status-ready-border: rgba(16, 185, 129, 0.22);
+
+  /* COMPLETED — muted neutral */
+  --status-done-text:   rgba(245, 245, 245, 0.45);
+  --status-done-bg:     rgba(245, 245, 245, 0.05);
+  --status-done-border: rgba(245, 245, 245, 0.10);
+
+  /* CANCELLED — soft red */
+  --status-cancel-text:   #F87171;
+  --status-cancel-bg:     rgba(248, 113, 113, 0.08);
+  --status-cancel-border: rgba(248, 113, 113, 0.18);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-theme, var(--font-inter, -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif));
+    font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+  }
+}
+
+@layer utilities {
+  .gpu-smooth {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  .tap-smooth {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ── Page background — subtle noise grain for depth ───────────────── */
+.parchment-bg {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(255,255,255,0.025) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,255,255,0.015) 0%, transparent 50%);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Focus ring ────────────────────────────────────────────────────── */
+.focus-ring {
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.20);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
