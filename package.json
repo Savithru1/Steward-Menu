@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "build:cloudflare": "npx @opennextjs/cloudflare build && node copy-worker.js",
-    "deploy": "npm run build:cloudflare && npx wrangler pages deploy .open-next --branch main",
+    "deploy": "npm run build:cloudflare && npx wrangler deploy",
     "start": "next start",
     "lint": "eslint"
   },
