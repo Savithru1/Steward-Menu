@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
+    "build:cloudflare": "npx @opennextjs/cloudflare build && node copy-worker.js",
+    "deploy": "npm run build:cloudflare && npx wrangler pages deploy .open-next --branch main",
     "start": "next start",
     "lint": "eslint"
   },
