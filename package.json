@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
-    "build:cloudflare": "npx @opennextjs/cloudflare build && node copy-worker.js",
-    "deploy": "npm run build:cloudflare && npx wrangler pages deploy .open-next --branch main",
+    "build:cloudflare": "node -e \"if (process.env.CF_PAGES) { console.log('Cloudflare Pages build detected, forcing clean install...'); require('child_process').execSync('npm ci', { stdio: 'inherit' }); }\" && node -e \"console.log('Build Node Version:', process.version); console.log('React version in node_modules:', require('react/package.json').version);\" && npx @opennextjs/cloudflare build && node copy-worker.js",
+    "deploy": "node deploy-prod.js",
     "start": "next start",
     "lint": "eslint"
   },
