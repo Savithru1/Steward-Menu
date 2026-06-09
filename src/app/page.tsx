@@ -49,12 +49,7 @@ export default function RootPage() {
           return;
         }
 
-        // 4. Fallback to NEXT_PUBLIC_DEFAULT_SLUG
-        const defaultSlug = process.env.NEXT_PUBLIC_DEFAULT_SLUG;
-        if (defaultSlug) {
-          router.replace(`/menu/${defaultSlug}`);
-          return;
-        }
+        // No fallback slug redirect - show the landing page so users scan QR code or go to direct URL
       } catch (e) {
         console.error("Context resolution error:", e);
       } finally {
