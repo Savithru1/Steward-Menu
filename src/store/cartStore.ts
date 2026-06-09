@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type { ApiMenuItem, CartItem } from "@/types";
 
 export type { CartItem } from "@/types";
@@ -144,6 +144,15 @@ export const useCartStore = create<CartStore>()(
     {
       name: "steward-cart",
       version: 3,
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined"
+          ? localStorage
+          : {
+              getItem: () => null,
+              setItem: () => {},
+              removeItem: () => {},
+            }
+      ),
       partialize: (state) => ({
         currentSlug: state.currentSlug,
         items: state.items,
