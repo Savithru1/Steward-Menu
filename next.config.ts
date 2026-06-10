@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   // ── Images ──────────────────────────────────────────────────────────────────
   images: {
     formats: ['image/avif', 'image/webp'],   // serve smaller images
