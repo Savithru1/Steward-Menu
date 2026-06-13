@@ -48,6 +48,8 @@ export async function generateMetadata({
  *
  * Note: params is typed as a Promise in Next.js 15+ layouts.
  */
+import { ActiveOrderBanner } from "@/components/tracking/ActiveOrderBanner";
+
 export default async function RestaurantLayout({
   children,
   params,
@@ -62,6 +64,7 @@ export default async function RestaurantLayout({
       <ThemeProvider slug={slug}>
         <ConsentProvider>
           {children}
+          <ActiveOrderBanner />
         </ConsentProvider>
       </ThemeProvider>
     </QueryProvider>
