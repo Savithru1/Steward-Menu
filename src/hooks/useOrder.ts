@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { QUERY_KEYS, SOCKET_EVENTS, SOCKET_ROOMS } from "@/lib/constants";
 import { getSocket } from "@/lib/sockets";
 import { useGuestIdentity } from "@/hooks/useGuestIdentity";
@@ -170,21 +170,25 @@ export function useGuestOrders(slug: string) {
   const { guestId } = useGuestIdentity();
   const queryClient = useQueryClient();
 
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    setToken(getRecallToken(slug));
+  }, [slug]);
+
   const query = useQuery({
-    queryKey: ["guest-orders", slug, guestId],
+    queryKey: ["guest-orders", slug, guestId, token],
     queryFn: async () => {
-      const recallToken = getRecallToken(slug);
-      if (recallToken) {
+      if (token) {
         const response = await api.get<{ data: OrderResponse[] }>(
           "/orders/recall",
-          { params: { token: recallToken } }
+          { params: { token } }
         );
         return response.data.data ?? [];
       }
-
       return [];
     },
-    enabled: !!getRecallToken(slug),
+    enabled: !!token,
     staleTime: 30_000,
   });
 
