@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-export const runtime = 'edge';
 
 import QueryProvider from "@/components/providers/QueryProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
