@@ -23,13 +23,13 @@ const RECALL_TOKEN_PREFIX = "steward_order_token_";
 
 function saveRecallToken(restaurantSlug: string, token: string) {
   try {
-    sessionStorage.setItem(`${RECALL_TOKEN_PREFIX}${restaurantSlug}`, token);
+    localStorage.setItem(`${RECALL_TOKEN_PREFIX}${restaurantSlug}`, token);
   } catch { /* blocked */ }
 }
 
 function getRecallToken(restaurantSlug: string): string | null {
   try {
-    return sessionStorage.getItem(`${RECALL_TOKEN_PREFIX}${restaurantSlug}`);
+    return localStorage.getItem(`${RECALL_TOKEN_PREFIX}${restaurantSlug}`);
   } catch { return null; }
 }
 
