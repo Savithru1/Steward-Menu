@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, Wifi, WifiOff, CreditCard, QrCode, Copy, Check, Ext
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import { useRazorpay } from "@/hooks/useRazorpay";
+import { usePaymentSdk } from "@/hooks/usePaymentSdk";
 import { QRCodeSVG } from "qrcode.react";
 
 import { ProgressTimeline } from "@/components/tracking/ProgressTimeline";
@@ -128,19 +128,12 @@ function TrackingContent() {
     ? `upi://pay?pa=${encodeURIComponent(order.upiId!)}&am=${encodeURIComponent(order.paymentAmount!)}&tn=${encodeURIComponent(order.upiRef!)}`
     : "";
 
-  const { openRazorpay } = useRazorpay(
-    order?.paymentMethod === "online" && order?.paymentStatus !== "paid"
-  );
+  const { executeSdk } = usePaymentSdk();
 
   const isCompleted = order?.status === "COMPLETED";
 
   const verifyPaymentMutation = useMutation({
-    mutationFn: async (data: {
-      razorpayPaymentId: string;
-      razorpayOrderId: string;
-      razorpaySignature: string;
-      stewardOrderId: string;
-    }) => {
+    mutationFn: async (data: any) => {
       const res = await api.post("/payment/verify", data);
       return res.data;
     },
@@ -154,24 +147,29 @@ function TrackingContent() {
   });
 
   const handlePayOnline = async () => {
-    if (!order?.razorpayOrderId) {
-      toast.error("Payment details not found. Please speak to staff.");
+    if (!order?.id) {
+      toast.error("Order details not found. Please speak to staff.");
       return;
     }
     
     try {
-      const result = await openRazorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-        amount: Math.round(Number(order.totalAmount) * 100),
-        currency: "INR",
-        name: "Steward",
-        orderId: order.razorpayOrderId,
-      });
-
-      verifyPaymentMutation.mutate({
-        ...result,
+      const { data: resData } = await api.post("/payment/session", {
         stewardOrderId: order.id,
       });
+      const session = resData.data;
+
+      if (session.executionStrategy === 'redirect' && session.executionPayload?.url) {
+        window.location.href = session.executionPayload.url;
+        return;
+      } else if (session.executionStrategy === 'native_sdk' && session.executionPayload?.sdkManifest) {
+        const verificationData = await executeSdk(session.executionPayload.sdkManifest);
+        verifyPaymentMutation.mutate({
+          ...verificationData,
+          stewardOrderId: order.id,
+        });
+      } else {
+        throw new Error("Unsupported payment execution strategy");
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "";
       if (message !== "Payment cancelled by user") {
