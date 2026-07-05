@@ -15,6 +15,7 @@ import { useCreateOrder } from "@/hooks/useOrder";
 import { useRestaurant } from "@/components/providers/RestaurantContext";
 import { useRazorpay } from "@/hooks/useRazorpay";
 import { api, extractApiError } from "@/lib/api";
+import { telemetry } from "@/lib/telemetry";
 import type { CreateOrderPayload, OrderType, OrderResponse } from "@/types";
 import { cn } from "@/lib/utils";
 import {
@@ -276,9 +277,14 @@ export default function CheckoutPage() {
           notes:      ci.notes,
         })),
         paymentMethod,
+        acquisitionSource: "LINK",
       };
 
       const newOrder = await createOrderMutation.mutateAsync(payload);
+
+      if (theme.restaurantId) {
+        telemetry.track(theme.restaurantId, "checkout_complete", { orderId: newOrder.id, total: total(), paymentMethod });
+      }
 
       // Persist order to history (cookies + localStorage)
       saveOrderToHistory({

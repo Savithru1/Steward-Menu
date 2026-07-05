@@ -10,6 +10,7 @@ import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { useRestaurant } from "@/components/providers/RestaurantContext";
 import { cn } from "@/lib/utils";
+import { telemetry } from "@/lib/telemetry";
 
 export function FloatingCartButton() {
   const { slug, theme } = useRestaurant();
@@ -165,7 +166,16 @@ export function FloatingCartButton() {
 
               {/* CTA */}
               <div className="sticky bottom-0 px-6 py-5 border-t border-border bg-popover">
-                <Link href={checkoutHref} prefetch={true} onClick={() => setIsOpen(false)}>
+                <Link 
+                  href={checkoutHref} 
+                  prefetch={true} 
+                  onClick={() => {
+                    setIsOpen(false);
+                    if (theme.restaurantId) {
+                      telemetry.track(theme.restaurantId, "checkout_start", { itemCount, total });
+                    }
+                  }}
+                >
                   <button
                     type="button"
                     className={cn(

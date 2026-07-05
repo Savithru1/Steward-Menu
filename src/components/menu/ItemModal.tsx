@@ -7,6 +7,8 @@ import { useCartStore } from "@/store/cartStore";
 import { QuantitySelector } from "./QuantitySelector";
 import { cn } from "@/lib/utils";
 import type { ApiMenuItem } from "@/types";
+import { telemetry } from "@/lib/telemetry";
+import { useRestaurant } from "@/components/providers/RestaurantContext";
 
 export function ItemModal(props: {
   item: ApiMenuItem | null;
@@ -18,6 +20,31 @@ export function ItemModal(props: {
   const item = props.item;
 
   const quantity = useCartStore((s) => (item ? s.getQuantity(item.id) : 0));
+  const { theme } = useRestaurant();
+
+  const onAdd = () => {
+    if (!item) return;
+    addItem(item);
+    if (theme.restaurantId) {
+      telemetry.track(theme.restaurantId, "add_to_cart", { itemId: item.id, itemName: item.name });
+    }
+  };
+
+  const onInc = () => {
+    if (!item) return;
+    updateQuantity(item.id, quantity + 1);
+    if (theme.restaurantId) {
+      telemetry.track(theme.restaurantId, "add_to_cart", { itemId: item.id, itemName: item.name });
+    }
+  };
+
+  const onDec = () => {
+    if (!item) return;
+    updateQuantity(item.id, quantity - 1);
+    if (theme.restaurantId) {
+      telemetry.track(theme.restaurantId, "remove_from_cart", { itemId: item.id, itemName: item.name });
+    }
+  };
 
   if (!item) return null;
 
@@ -98,7 +125,7 @@ export function ItemModal(props: {
             ) : quantity === 0 ? (
               <button
                 type="button"
-                onClick={() => addItem(item)}
+                onClick={onAdd}
                 className={cn(
                   "w-full rounded-full py-3 text-sm font-semibold tracking-tight",
                   "bg-primary text-primary-foreground",
@@ -113,8 +140,8 @@ export function ItemModal(props: {
                 <span className="text-sm text-foreground/60">In your order</span>
                 <QuantitySelector
                   value={quantity}
-                  onDecrement={() => updateQuantity(item.id, quantity - 1)}
-                  onIncrement={() => updateQuantity(item.id, quantity + 1)}
+                  onDecrement={onDec}
+                  onIncrement={onInc}
                 />
               </div>
             )}

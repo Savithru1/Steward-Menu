@@ -7,6 +7,7 @@ import { useCartStore } from "@/store/cartStore";
 import { QuantitySelector } from "./QuantitySelector";
 import type { ApiMenuItem } from "@/types";
 import { useRestaurant } from "@/components/providers/RestaurantContext";
+import { telemetry } from "@/lib/telemetry";
 
 export function MenuCard(props: {
   item: ApiMenuItem;
@@ -25,10 +26,23 @@ export function MenuCard(props: {
   const onAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     addItem(item);
+    if (theme.restaurantId) {
+      telemetry.track(theme.restaurantId, "add_to_cart", { itemId: item.id, itemName: item.name });
+    }
   };
 
-  const onInc = () => updateQuantity(item.id, quantity + 1);
-  const onDec = () => updateQuantity(item.id, quantity - 1);
+  const onInc = () => {
+    updateQuantity(item.id, quantity + 1);
+    if (theme.restaurantId) {
+      telemetry.track(theme.restaurantId, "add_to_cart", { itemId: item.id, itemName: item.name });
+    }
+  };
+  const onDec = () => {
+    updateQuantity(item.id, quantity - 1);
+    if (theme.restaurantId) {
+      telemetry.track(theme.restaurantId, "remove_from_cart", { itemId: item.id, itemName: item.name });
+    }
+  };
 
   return (
     <motion.div

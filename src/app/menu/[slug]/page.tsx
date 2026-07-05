@@ -17,6 +17,7 @@ import { MenuGridSkeleton } from "@/components/menu/MenuGridSkeleton";
 import { useMenu } from "@/hooks/useMenu";
 import { useRestaurant } from "@/components/providers/RestaurantContext";
 import type { ApiMenuItem } from "@/types";
+import { telemetry } from "@/lib/telemetry";
 
 export default function MenuPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -31,6 +32,23 @@ export default function MenuPage() {
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (menuData?.restaurant?.id) {
+      telemetry.track(menuData.restaurant.id, "page_view", { page: "menu", slug });
+    }
+  }, [menuData?.restaurant?.id, slug]);
+
+  const handleSelectItem = (item: ApiMenuItem) => {
+    setSelectedItem(item);
+    if (menuData?.restaurant?.id) {
+      telemetry.track(menuData.restaurant.id, "item_view", { itemId: item.id, itemName: item.name });
+    }
+  };
+
+  const handleSearch = (q: string) => {
+    setSearch(q);
+  };
 
   const { data: menuData, isLoading, isError } = useMenu(slug);
 
@@ -107,7 +125,7 @@ export default function MenuPage() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pb-6">
         <SearchBar
           value={search}
-          onChange={setSearch}
+          onChange={handleSearch}
           placeholder="Search dishes, filter by cravings"
         />
       </div>
@@ -127,7 +145,7 @@ export default function MenuPage() {
         featuredItems.length > 0 && (
           <FeaturedSection
             items={featuredItems}
-            onItemClick={setSelectedItem}
+            onItemClick={handleSelectItem}
           />
         )}
 
@@ -198,7 +216,7 @@ export default function MenuPage() {
                     },
                   }}
                 >
-                  <MenuCard item={item} onOpen={setSelectedItem} />
+                  <MenuCard item={item} onOpen={handleSelectItem} />
                 </motion.div>
               ))}
             </motion.div>
