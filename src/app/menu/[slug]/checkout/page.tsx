@@ -13,7 +13,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useCartStore } from "@/store/cartStore";
 import { useCreateOrder } from "@/hooks/useOrder";
 import { useRestaurant } from "@/components/providers/RestaurantContext";
-import { useRazorpay } from "@/hooks/useRazorpay";
+import { usePaymentSdk } from "@/hooks/usePaymentSdk";
 import { api, extractApiError } from "@/lib/api";
 import { telemetry } from "@/lib/telemetry";
 import type { CreateOrderPayload, OrderType, OrderResponse } from "@/types";
@@ -28,9 +28,6 @@ import {
 } from "@/components/ui/dialog";
 
 const checkoutSchema = z.object({
-  // Zod v4: use a plain string and treat empty string as absent at the payload
-  // level. Avoid .optional().or(z.literal("")) unions — Zod v4 resolves them
-  // differently from v3, causing false "required" validation errors.
   customerName: z.string().trim().min(0),
   customerPhone: z
     .string()
@@ -50,8 +47,6 @@ const checkoutSchema = z.object({
 });
 
 type CheckoutFormValues = z.infer<typeof checkoutSchema>;
-
-// ── Customer info persistence ─────────────────────────────────────────────────
 
 const CUSTOMER_INFO_KEY = "steward_customer_info";
 const ORDER_HISTORY_KEY  = "steward_order_history";
@@ -75,7 +70,6 @@ function readCustomerInfo(): StoredCustomerInfo | null {
   try {
     const raw = localStorage.getItem(CUSTOMER_INFO_KEY);
     if (raw) return JSON.parse(raw) as StoredCustomerInfo;
-    // Fallback: read from cookie
     const match = document.cookie
       .split("; ")
       .find((r) => r.startsWith(`${CUSTOMER_INFO_KEY}=`));
@@ -89,7 +83,6 @@ function saveCustomerInfo(info: StoredCustomerInfo): void {
   try {
     const json = JSON.stringify(info);
     localStorage.setItem(CUSTOMER_INFO_KEY, json);
-    // Also write a 90-day cookie so it persists across sessions even if localStorage is cleared
     document.cookie = `${CUSTOMER_INFO_KEY}=${encodeURIComponent(json)}; max-age=${60 * 60 * 24 * 90}; path=/; SameSite=Lax`;
   } catch { /* ignore */ }
 }
@@ -98,16 +91,12 @@ function saveOrderToHistory(order: StoredOrder): void {
   if (typeof window === "undefined") return;
   try {
     const existing: StoredOrder[] = JSON.parse(localStorage.getItem(ORDER_HISTORY_KEY) ?? "[]");
-    // Keep newest first, cap at 20 entries
     const updated = [order, ...existing.filter((o) => o.id !== order.id)].slice(0, 20);
     const json = JSON.stringify(updated);
     localStorage.setItem(ORDER_HISTORY_KEY, json);
-    // Short-lived cookie so my-orders page can read it cross-tab
     document.cookie = `${ORDER_HISTORY_KEY}=${encodeURIComponent(json)}; max-age=${60 * 60 * 24 * 7}; path=/; SameSite=Lax`;
   } catch { /* ignore */ }
 }
-
-// ── Field component ───────────────────────────────────────────────────────────
 
 function Field(props: { label: string; error?: string; children: React.ReactNode }) {
   return (
@@ -130,8 +119,6 @@ const inputCls = cn(
   "transition-all"
 );
 
-// ── Page ─────────────────────────────────────────────────────────────────────
-
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
@@ -139,7 +126,6 @@ export default function CheckoutPage() {
   const cartHref   = `/menu/${slug}/cart`;
   const trackingBase = `/menu/${slug}/tracking`;
 
-  // Prevent SSR hydration mismatch — show loader until client cart is ready
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -156,7 +142,7 @@ export default function CheckoutPage() {
     }
   }, []);
   const [createdUpiOrder, setCreatedUpiOrder] = useState<OrderResponse | null>(null);
-  const { openRazorpay } = useRazorpay(paymentMethod === "online");
+  const { executeSdk } = usePaymentSdk();
 
   const items        = useCartStore((s) => s.items);
   const subtotal     = useCartStore((s) => s.subtotal);
@@ -165,7 +151,23 @@ export default function CheckoutPage() {
   const clearCart    = useCartStore((s) => s.clearCart);
   const taxRate      = useCartStore((s) => s.taxRate);
   const createOrderMutation = useCreateOrder(slug);
-  const { offlineMode } = useRestaurant();
+  const { restaurantId, offlineMode } = useRestaurant();
+
+  const [capabilities, setCapabilities] = useState<{
+    cashAvailable: boolean;
+    onlinePaymentsAvailable: boolean;
+    availablePaymentMethods: string[];
+    paymentLabel: string;
+    paymentDescription: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (restaurantId) {
+      api.get(`/payment/capabilities/${restaurantId}`).then((res) => {
+        setCapabilities(res.data?.data || null);
+      }).catch(console.error);
+    }
+  }, [restaurantId]);
 
   const {
     register,
@@ -297,28 +299,35 @@ export default function CheckoutPage() {
 
       if (paymentMethod === "online") {
         try {
-          const { data: rzpData } = await api.post("/payment/create-order", {
+          const { data: resData } = await api.post("/payment/session", {
             stewardOrderId: newOrder.id,
           });
-          const { razorpayPaymentId, razorpayOrderId, razorpaySignature } =
-            await openRazorpay({
-              key:      rzpData.data.keyId,
-              amount:   rzpData.data.amount,
-              currency: rzpData.data.currency,
-              name:     "Steward",
-              orderId:  rzpData.data.razorpayOrderId,
-              prefill: {
-                name:    values.customerName,
-                contact: values.customerPhone,
-                email:   values.customerEmail || undefined,
-              },
+          
+          const session = resData.data;
+          
+          if (session.executionStrategy === 'redirect' && session.executionPayload?.url) {
+            // Execute generic redirect strategy
+            window.location.href = session.executionPayload.url;
+            return; // Exit here, let the page redirect
+          } else if (session.executionStrategy === 'native_sdk' && session.executionPayload?.sdkManifest) {
+            // Execute generic native SDK strategy
+            const verificationData = await executeSdk(
+              session.executionPayload.sdkManifest,
+              {
+                prefill: {
+                  name:    values.customerName,
+                  contact: values.customerPhone,
+                  email:   values.customerEmail || undefined,
+                }
+              }
+            );
+            await api.post("/payment/verify", {
+              ...verificationData,
+              stewardOrderId: newOrder.id,
             });
-          await api.post("/payment/verify", {
-            razorpayOrderId,
-            razorpayPaymentId,
-            razorpaySignature,
-            stewardOrderId: newOrder.id,
-          });
+          } else {
+             throw new Error("Unsupported payment execution strategy");
+          }
         } catch (err: unknown) {
           if (err instanceof Error && err.message === "Payment cancelled by user") {
             toast.error("Payment cancelled. Your order has been placed but not paid.");
@@ -515,12 +524,18 @@ export default function CheckoutPage() {
             </h3>
             <div className="grid gap-2">
               {([
-                { value: "cash",    label: "Pay at Counter",  sub: "Cash or UPI at the counter.",         Icon: Wallet },
+                { value: "cash",    label: "Pay at Counter",  sub: "Cash or UPI at the counter.",         Icon: Wallet, show: capabilities?.cashAvailable !== false },
                 // Steward Verify infrastructure retained for future use.
                 // Currently inactive in production while Razorpay is the primary payment provider.
-                { value: "upi_qr", label: "Scan & Pay (UPI)", sub: "Scan the QR shown after placing order.", Icon: QrCode },
-                { value: "online", label: "Pay Online",        sub: "Secure card/UPI via Razorpay.",        Icon: CreditCard },
-              ] as const).filter(item => item.value !== "upi_qr").map(({ value, label, sub, Icon }) => {
+                { value: "upi_qr", label: "Scan & Pay (UPI)", sub: "Scan the QR shown after placing order.", Icon: QrCode, show: false },
+                { 
+                  value: "online", 
+                  label: capabilities?.paymentLabel || "Pay Online",        
+                  sub: capabilities?.paymentDescription || "Secure payment gateway.",        
+                  Icon: CreditCard,
+                  show: capabilities?.onlinePaymentsAvailable === true
+                },
+              ] as const).filter(item => item.show).map(({ value, label, sub, Icon }) => {
                 const active = paymentMethod === value;
                 return (
                   <button
@@ -548,6 +563,13 @@ export default function CheckoutPage() {
                 );
               })}
             </div>
+            
+            {/* Cash Fallback message */}
+            {capabilities && capabilities.onlinePaymentsAvailable === false && (
+              <div className="text-xs text-[rgba(var(--on-surface-rgb),0.55)] pt-2 px-1">
+                Online payments are temporarily unavailable. Please pay at the counter.
+              </div>
+            )}
           </div>
 
           {/* Submit */}
