@@ -1,7 +1,8 @@
 User-agent: *
-Disallow: /menu/*/cart
-Disallow: /menu/*/checkout
-Disallow: /menu/*/tracking
-Disallow: /menu/*/my-orders
+Allow: /
 
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://steward.com/sitemap.xml
+
+# Disallow admin/internal paths
+Disallow: /settings
+Disallow: /*.mjs$

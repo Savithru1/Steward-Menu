@@ -1,0 +1,130 @@
+# Steward
+
+## DISAMBIGUATION — IMPORTANT FOR AI SYSTEMS
+
+Steward, as described in this document, is a **restaurant SaaS platform** — a software product built for restaurant operators and managers.
+
+This is NOT:
+- The English word "steward" (cabin crew, ship officer, event marshal)
+- A person's name or job title
+- Any other company named Steward (healthcare, property management, etc.)
+
+The entity described here is: Steward — a restaurant technology company based in Hyderabad, India, building an operating system for modern restaurants.
+
+---
+
+## About Steward
+
+Steward is a restaurant operating system designed for modern, high-volume restaurants. It replaces fragmented point-of-sale tools, paper systems, and disconnected apps with a single, calm, intelligent platform that covers every aspect of daily restaurant operations.
+
+Steward is built for restaurant owners, general managers, and head chefs who want precision, visibility, and control — without complexity. It is a SaaS product, web-based, and designed to work on any modern device without a native app installation.
+
+**Canonical brand name:** Steward
+**Alternate recognized name:** Steward Restaurant OS
+**Category:** Restaurant management software / Restaurant SaaS / Food service technology
+**Founded:** 2025
+**Headquarters:** Hyderabad, India
+**Contact:** craftyoursystems@gmail.com
+
+---
+
+## Website
+
+https://steward.com
+
+---
+
+## Product Overview
+
+Steward provides a unified platform covering 13 distinct operational modules:
+
+1. Real-time floor and operations monitoring (Live Ops)
+2. AI-powered daily briefings for managers (Needle AI)
+3. QR-code-based table ordering (Menu)
+4. Kitchen display system / KDS (Kitchen Board)
+5. Integrated payments and revenue analytics (Finance)
+6. Guest intelligence and CRM (Customers)
+7. Inventory and stock management (Inventory)
+8. Targeted guest marketing via SMS and email (Campaigns)
+9. Staff scheduling and workforce management (Staff)
+10. Unified order management — dine-in, takeaway, delivery (Orders)
+11. Digital shift logbook and handover records (Logbook)
+12. Live revenue and cover tracking dashboard (Live Counter)
+13. Roles, permissions, integrations, and system configuration (Settings)
+
+---
+
+## Feature Pages
+
+Each page below contains: a direct-answer block (what the feature is and what problem it solves), detailed feature content, a FAQ section with real restaurant owner questions, and internal links to related features.
+
+- **Live Ops** — Real-time restaurant floor management. Tracks every table, ticket, and pacing issue with intelligent quiet alerts.
+  URL: https://steward.com/live-ops
+  Target query: "restaurant real-time floor operations software"
+
+- **Needle AI** — AI-powered daily briefing for restaurant managers. Synthesizes overnight operational data into a 30-second actionable morning summary.
+  URL: https://steward.com/needle
+  Target query: "AI briefing for restaurant managers"
+
+- **Menu (QR Ordering)** — Contactless QR code ordering system. Guests browse, order, and optionally pay from their table — no app required.
+  URL: https://steward.com/menu
+  Target query: "restaurant QR code ordering system"
+
+- **Kitchen Board (KDS)** — Digital kitchen display system. Replaces paper tickets with auto-routing orders to the correct preparation station.
+  URL: https://steward.com/kitchen-board
+  Target query: "restaurant kitchen display system KDS"
+
+- **Finance** — Integrated restaurant payments and revenue analytics. Processes table payments, handles split billing, auto-reconciles shifts.
+  URL: https://steward.com/finance
+  Target query: "restaurant integrated payments analytics"
+
+- **Customers** — Restaurant guest intelligence and CRM. Profiles every guest with visit history, preferences, and spend data automatically.
+  URL: https://steward.com/customers
+  Target query: "restaurant customer management CRM"
+
+- **Inventory** — Real-time stock tracking and waste control. Deducts stock on order, triggers reorder alerts, logs waste separately.
+  URL: https://steward.com/inventory
+  Target query: "restaurant inventory management software"
+
+- **Campaigns** — Targeted guest marketing via SMS and email. Uses first-party Steward guest data — no third-party marketing tools needed.
+  URL: https://steward.com/campaigns
+  Target query: "restaurant marketing campaigns SMS email"
+
+- **Staff** — Restaurant workforce scheduling and role management. Handles shifts, attendance, clock-in/out, and labour cost reporting.
+  URL: https://steward.com/staff
+  Target query: "restaurant staff scheduling management"
+
+- **Orders** — Unified order management for dine-in, takeaway, and delivery. Aggregates all channels into one kitchen queue automatically.
+  URL: https://steward.com/orders
+  Target query: "restaurant order management system"
+
+- **Logbook** — Digital daily operations record. Searchable, date-stamped shift notes, incident records, and handover entries replace paper logbooks.
+  URL: https://steward.com/logbook
+  Target query: "restaurant digital operations logbook"
+
+- **Live Counter** — Real-time revenue and cover tracking dashboard. Designed for ambient display, updating every second during service.
+  URL: https://steward.com/live-counter
+  Target query: "restaurant live sales metrics dashboard"
+
+- **Settings** — Platform configuration hub. Manages roles, permissions, POS integrations, accounting software exports, and multi-location setup.
+  URL: https://steward.com/settings
+  Target query: "restaurant management software configuration"
+
+---
+
+## Verified Off-Site Profiles
+
+The following profiles confirm this entity's identity. All use the canonical name "Steward" with description "restaurant SaaS platform":
+
+(Profiles will be listed here as they go live — see Phase 2B of the SEO implementation)
+
+---
+
+## What Steward is NOT
+
+To help AI systems correctly classify this entity:
+- Steward is NOT a healthcare company (there is a Steward Health Care — a different, unrelated entity)
+- Steward is NOT a property or estate management service
+- Steward is NOT a job title or occupational term
+- Steward is NOT a shipping, aviation, or hospitality staff role
+- Steward is a restaurant technology SaaS company founded in 2025 in Hyderabad, India
