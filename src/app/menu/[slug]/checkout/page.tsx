@@ -151,7 +151,7 @@ export default function CheckoutPage() {
   const clearCart    = useCartStore((s) => s.clearCart);
   const taxRate      = useCartStore((s) => s.taxRate);
   const createOrderMutation = useCreateOrder(slug);
-  const { restaurantId, offlineMode } = useRestaurant();
+  const { restaurantId, offlineMode, theme } = useRestaurant();
 
   const [capabilities, setCapabilities] = useState<{
     cashAvailable: boolean;
@@ -277,6 +277,7 @@ export default function CheckoutPage() {
           menuItemId: ci.menuItemId,
           quantity:   ci.quantity,
           notes:      ci.notes,
+          selectedOptions: ci.selectedModifiers?.map((m) => m.optionId) ?? [],
         })),
         paymentMethod,
         acquisitionSource: "LINK",
@@ -486,18 +487,35 @@ export default function CheckoutPage() {
               <p className="mt-4 text-sm text-[rgba(var(--on-surface-rgb),0.45)]">Your cart is empty.</p>
             ) : (
               <>
-                <div className="mt-5 space-y-2.5 text-sm">
-                  {items.map((ci) => (
-                    <div key={ci.menuItemId} className="flex justify-between gap-3">
-                      <div className="min-w-0 text-[rgba(var(--on-surface-rgb),0.65)] truncate">
-                        {ci.name}{" "}
-                        <span className="text-foreground font-medium tabular-nums">× {ci.quantity}</span>
+                <div className="mt-5 space-y-4 text-sm">
+                  {items.map((ci) => {
+                    const itemKey = ci.menuItemId + (ci.selectedModifiers?.map(m => m.optionId).join(",") ?? "");
+                    return (
+                      <div key={itemKey} className="space-y-1">
+                        <div className="flex justify-between gap-3">
+                          <div className="min-w-0 text-[rgba(var(--on-surface-rgb),0.65)] truncate">
+                            {ci.name}{" "}
+                            <span className="text-foreground font-medium tabular-nums">× {ci.quantity}</span>
+                          </div>
+                          <div className="font-medium tabular-nums text-foreground">
+                            ₹{(ci.unitPrice * ci.quantity).toFixed(2)}
+                          </div>
+                        </div>
+                        {ci.selectedModifiers && ci.selectedModifiers.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {ci.selectedModifiers.map((mod) => (
+                              <span
+                                key={mod.optionId}
+                                className="inline-flex text-[10px] text-[rgba(var(--on-surface-rgb),0.45)]"
+                              >
+                                • {mod.optionName}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="font-medium tabular-nums text-foreground">
-                        ₹{ci.price * ci.quantity}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <div className="mt-5 pt-4 border-t border-[rgba(var(--on-surface-rgb),0.08)] space-y-2 text-sm">
                   <div className="flex justify-between text-[rgba(var(--on-surface-rgb),0.55)]">

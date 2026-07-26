@@ -106,10 +106,10 @@ export function MenuCard(props: {
               <span className="inline-flex items-center rounded-full border border-border px-4 py-2 text-[11px] font-medium text-foreground/25">
                 Unavailable
               </span>
-            ) : quantity === 0 ? (
+            ) : (
               <button
                 type="button"
-                onClick={onAdd}
+                onClick={() => props.onOpen(item)}
                 className={cn(
                   "rounded-full px-5 py-2 text-xs font-semibold tracking-tight",
                   "bg-primary text-primary-foreground",
@@ -117,14 +117,8 @@ export function MenuCard(props: {
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 )}
               >
-                Add
+                {quantity > 0 ? `In Cart (${quantity})` : "Add"}
               </button>
-            ) : (
-              <QuantitySelector
-                value={quantity}
-                onDecrement={onDec}
-                onIncrement={onInc}
-              />
             )}
           </div>
         </div>

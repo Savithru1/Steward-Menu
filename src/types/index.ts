@@ -92,16 +92,54 @@ export interface ApiCategory {
   items?: RawApiMenuItem[];
 }
 
+// ── Modifiers ─────────────────────────────────────────────────────────────────
+
+export interface ModifierOption {
+  id: string;
+  modifierGroupId: string;
+  name: string;
+  priceAdjustment: string | number;
+  active: boolean;
+  displayOrder: number;
+}
+
+export interface ModifierGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  active: boolean;
+  options: ModifierOption[];
+}
+
+export interface MenuItemModifierGroup {
+  modifierGroupId: string;
+  required: boolean;
+  minimumSelections: number;
+  maximumSelections: number;
+  displayOrder: number;
+  modifierGroup: ModifierGroup;
+}
+
+export interface SelectedModifier {
+  optionId: string;
+  optionName: string;
+  groupId: string;
+  groupName: string;
+  priceAdjustment: number;
+}
+
 // ── Cart ──────────────────────────────────────────────────────────────────────
 
 export interface CartItem {
   menuItemId: string;
   name: string;
-  price: number;
+  price: number; // Base price
+  unitPrice: number; // Price including selected modifiers
   quantity: number;
   imageUrl: string | null;
   isVeg: boolean;
   notes?: string;
+  selectedModifiers?: SelectedModifier[];
 }
 
 // ── Orders ────────────────────────────────────────────────────────────────────
@@ -117,8 +155,10 @@ export interface CreateOrderPayload {
     menuItemId: string;
     quantity: number;
     notes?: string;
+    selectedOptions?: string[];
   }[];
   paymentMethod?: string;
+  acquisitionSource?: string;
 }
 
 export interface OrderItem {

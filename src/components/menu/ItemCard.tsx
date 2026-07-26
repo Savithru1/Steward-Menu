@@ -110,31 +110,13 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
               <span className="text-[10px] text-foreground/40 font-bold bg-card px-3 py-1.5 rounded-md tracking-widest uppercase border border-border">
                 Unavailable
               </span>
-            ) : quantity === 0 ? (
+            ) : (
               <button
-                onClick={handleAdd}
+                onClick={() => onClick(item)}
                 className="flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-xs font-black tracking-tight text-primary-foreground hover:opacity-90 transition-opacity duration-150 active:scale-[0.96]"
               >
-                <Plus className="h-4 w-4" /> ADD
+                {quantity > 0 ? `IN ORDER (${quantity})` : "ADD"}
               </button>
-            ) : (
-              <div className="flex h-9 items-center rounded-full bg-primary shadow-xl overflow-hidden">
-                <button
-                  onClick={handleDecrement}
-                  className="flex h-full w-9 items-center justify-center text-primary-foreground hover:bg-primary/80 transition-colors active:opacity-70"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="w-7 text-center text-xs font-black text-primary-foreground">
-                  {quantity}
-                </span>
-                <button
-                  onClick={handleIncrement}
-                  className="flex h-full w-9 items-center justify-center text-primary-foreground hover:bg-primary/80 transition-colors active:opacity-70"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
             )}
           </div>
         </div>

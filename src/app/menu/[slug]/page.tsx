@@ -21,7 +21,7 @@ import { telemetry } from "@/lib/telemetry";
 
 export default function MenuPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { theme, offlineMode } = useRestaurant();
+  const { theme, offlineMode, restaurantId } = useRestaurant();
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedItem, setSelectedItem] = useState<ApiMenuItem | null>(null);
@@ -34,15 +34,15 @@ export default function MenuPage() {
   }, []);
 
   useEffect(() => {
-    if (menuData?.restaurant?.id) {
-      telemetry.track(menuData.restaurant.id, "page_view", { page: "menu", slug });
+    if (restaurantId) {
+      telemetry.track(restaurantId, "page_view", { page: "menu", slug });
     }
-  }, [menuData?.restaurant?.id, slug]);
+  }, [restaurantId, slug]);
 
   const handleSelectItem = (item: ApiMenuItem) => {
     setSelectedItem(item);
-    if (menuData?.restaurant?.id) {
-      telemetry.track(menuData.restaurant.id, "item_view", { itemId: item.id, itemName: item.name });
+    if (restaurantId) {
+      telemetry.track(restaurantId, "item_view", { itemId: item.id, itemName: item.name });
     }
   };
 

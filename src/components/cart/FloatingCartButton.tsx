@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ShoppingBag, X } from "lucide-react";
 
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore, getCartItemKey } from "@/store/cartStore";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { useRestaurant } from "@/components/providers/RestaurantContext";
@@ -158,7 +158,7 @@ export function FloatingCartButton() {
               <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 no-scrollbar">
                 <div className="space-y-3">
                   {items.map((ci) => (
-                    <CartItem key={ci.menuItemId} cartItem={ci} />
+                    <CartItem key={getCartItemKey(ci.menuItemId, ci.selectedModifiers)} cartItem={ci} />
                   ))}
                 </div>
                 <CartSummary subtotal={subtotal} tax={tax} total={total} />
